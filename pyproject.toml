@@ -17,7 +17,12 @@ classifiers = [
     "Operating System :: OS Independent",
     "Typing :: Typed",
 ]
-dependencies = []
+dependencies = [
+    "pyyaml>=6.0,<7",
+]
+
+[project.scripts]
+rag-pipeline-yaml = "rag_pipeline_yaml.__main__:main"
 
 [project.urls]
 Homepage = "https://github.com/Trysac/u113-rag-pipeline-yaml"

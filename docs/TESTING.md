@@ -1,20 +1,9 @@
-# Testing
+# Testing Strategy
 
-## Running
+The library utilizes `pytest` to cover the following areas:
 
-```sh
-uv run pytest --cov=rag_pipeline_yaml   # tests with coverage report
-uv run python scripts/check.py      # every gate, as CI and the factory run it
-```
-
-## Policy
-
-- Branch coverage of `src/rag_pipeline_yaml` must stay at or above 80 %; the gate fails below it.
-- Tests exercise the public API (`import rag_pipeline_yaml`) and assert every observable effect:
-  return values, raised exceptions and their messages.
-- Each bug fix starts with a failing test that reproduces it.
-- Tests are deterministic: no network, no wall clock, no dependence on test order.
-
-## Layout
-
-`tests/test_<module>.py` mirrors each public module. Shared fixtures go in `tests/conftest.py`.
+- **Acceptance Tests**: Verifies pipeline execution outputs, variable resolution, and trace generation in `tests/test_rag_pipeline_yaml.py`.
+- **Static Analysis**: Ensures `load_pipeline` correctly rejects undefined variables, shadowed outputs, and illegal YAML structures.
+- **Safety & Error Handling**: Tests `alias_forbidden`, `too_large`, and other `PipelineError` code paths.
+- **Component Logic**: Validates `FakeLLM` and `RecordedLLM` behavior, including `RecordingExhaustedError`.
+- **CLI Tool**: Validates exit codes and output messages for valid and invalid pipeline files.

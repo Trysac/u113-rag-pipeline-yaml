@@ -1,19 +1,8 @@
-# Security notes
+# Security Model
 
-## Threat model
+## Threat Model & Defenses
 
-`trysac-rag-pipeline-yaml` is a pure library without I/O. The main risks are:
-
-- **Supply chain**: a compromised dependency or CI action. Mitigation: no runtime dependencies,
-  Dependabot weekly updates, actions pinned to major versions, minimal workflow permissions.
-- **Leaked secrets**: tokens committed by mistake. Mitigation: `gitleaks` runs in the local gates
-  and in CI; `.env` files are git-ignored.
-- **Untrusted input**: callers may pass hostile strings. Mitigation: validate input and fail with
-  explicit exceptions; never `eval`, `exec` or deserialize untrusted data.
-
-## Publishing
-
-Releases are published to PyPI with trusted publishing (OIDC) when available, never with a
-long-lived token stored in the repository.
-
-To report a vulnerability, see [SECURITY.md](../SECURITY.md).
+1. **YAML Expansion Attacks (Billion-Laughs)**: The pipeline strictly rejects YAML aliases and anchors. The loader explicitly scans for `AliasEvent` and anchor attributes before parsing. Violations result in an `alias_forbidden` error.
+2. **Arbitrary Code Execution**: Only `yaml.SafeLoader` is used. Custom Python object instantiation through YAML tags is not supported.
+3. **Information Leakage**: Step traces are explicitly content-free. `StepTrace` objects record only `step_id`, `component`, `status` (`ok` or `error`), and `duration_ms`. No inputs, retrieved documents, or model completions are ever captured in trace records.
+4. **Denial of Service**: Pipeline text input is restricted to a maximum size (default 65,536 bytes), returning `too_large` if exceeded.
