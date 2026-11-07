@@ -1,29 +1,10 @@
 # Architecture
 
-## Purpose
+`trysac-rag-pipeline-yaml` provides a declarative, strictly validated execution graph for Retrieval-Augmented Generation (RAG) pipelines defined in YAML.
 
-`trysac-rag-pipeline-yaml` is a small, dependency-free Python library: Declarative RAG pipelines in YAML: registered components, typed variable interpolation, static checks before any step runs, alias-free safe loading and content-free traces
+## Core Principles
 
-## Shape
-
-```text
-caller code --> rag_pipeline_yaml (public API in __init__.py)
-                    |
-                    +-- pure functions, no I/O, no global state
-```
-
-- **Public API**: the names listed in `__all__` of `src/rag_pipeline_yaml/__init__.py`. Anything else is
-  internal and may change without a major version.
-- **Errors**: invalid input raises built-in exceptions (`ValueError`, `TypeError`) with a clear
-  message; the library never prints or exits.
-- **Side effects**: none. If a feature needs I/O, isolate it in its own module behind a small
-  interface and record the choice in an ADR.
-
-## Quality contract
-
-`scripts/check.py` is the single definition of the gates; `fabrica.json` tells the factory and CI
-how to run it. See [TESTING.md](TESTING.md).
-
-## Decisions
-
-Architecture decisions are recorded in [decisions/](decisions/) as numbered ADRs.
+1. **Safe Loading First**: Pipeline text is checked for maximum byte length and scanned for YAML events (such as `AliasEvent` and anchors) before parsing data. This completely avoids parser-level expansion and billion-laughs vulnerabilities.
+2. **Static Validation**: Variable references `${var}` are statically checked at load time against pipeline inputs and previous step outputs. Shadowing is strictly forbidden.
+3. **Content-Free Tracing**: Step traces record only `step_id`, `component`, `status` (`ok` or `error`), and elapsed milliseconds `duration_ms`.
+4. **Injected Dependencies**: The execution engine does not bundle network clients or vector stores. The LLM port is injected via `LLMPort` protocol, and custom components are registered in a local `Registry`.
