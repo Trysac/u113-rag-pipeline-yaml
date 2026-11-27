@@ -8,8 +8,10 @@ RAG prototypes often hard-code retrieval, prompt building, and generation in mon
 
 ## Installation
 
+Not published to PyPI yet. Install it from GitHub:
+
 ```bash
-pip install trysac-rag-pipeline-yaml
+pip install "git+https://github.com/Trysac/u113-rag-pipeline-yaml"
 ```
 
 ## Usage Example
